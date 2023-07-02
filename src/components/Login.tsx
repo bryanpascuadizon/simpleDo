@@ -4,13 +4,17 @@ import {
   LiteralUnion,
   getProviders,
   signIn,
-  useSession,
 } from "next-auth/react";
+import { useDispatch } from "react-redux";
 import React, { useEffect, useState } from "react";
 import googleIcon from "@/assets/images/google_icon.png";
 import Image from "next/image";
 import Link from "next/link";
 import moment from "moment";
+
+//REDUCER ACTIONS
+import { closedLoader, openLoader } from "@/utils/reducers/loaderReducer";
+
 const Login = () => {
   const [loginCredentials, setLoginCredentials] = useState({
     username: "",
@@ -21,6 +25,8 @@ const Login = () => {
     ClientSafeProvider
   > | null>(null);
   const { username, password } = loginCredentials;
+  const dispatch = useDispatch();
+
   const handleLoginSubmit = (e: any) => {
     e.preventDefault();
   };
@@ -40,6 +46,12 @@ const Login = () => {
 
     setUpProviders();
   }, []);
+
+  const handleLogin = async (providerId: string) => {
+    dispatch(openLoader());
+    await signIn(providerId);
+    dispatch(closedLoader());
+  };
   return (
     <div className="h-full relative">
       <div className="login_header text-center mb-10">
@@ -84,7 +96,7 @@ const Login = () => {
               <button
                 type="button"
                 key={provider.name}
-                onClick={() => signIn(provider.id)}
+                onClick={() => handleLogin(provider.id)}
                 className="text-xs rounded-full text-center p-3 border border-gray-400 w-[60%] relative"
               >
                 {provider.name === "Google" ? (
@@ -106,7 +118,9 @@ const Login = () => {
           ))}
       </div>
       <div className="login_footer text-center absolute bottom-5 left-[25%] right-[25%]">
-        <p className="text-xs">{`© ${moment(new Date()).format("YYYY")} Bryan Dizon`}</p>
+        <p className="text-xs">{`© ${moment(new Date()).format(
+          "YYYY"
+        )} Bryan Dizon`}</p>
       </div>
     </div>
   );

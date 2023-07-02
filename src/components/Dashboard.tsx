@@ -12,9 +12,12 @@ import axios from "axios";
 import Task from "@/components/Tasks/Task";
 import TaskForm from "./Tasks/TaskForm";
 
+//REDUCER ACTIONS
+import { modifyTasks } from "@/utils/reducers/taskReducer";
+
 //ACTIONS
 import { fetchTasksForUser } from "@/lib/TaskActions";
-import { modifyTasks } from "@/utils/reducers/taskReducer";
+import { closedLoader, openLoader } from "@/utils/reducers/loaderReducer";
 
 const Dashboard = () => {
   const [taskData, setTaskData] = useState({
@@ -39,7 +42,7 @@ const Dashboard = () => {
 
   const addTaskSubmit = async (e: any) => {
     e.preventDefault();
-
+    dispatch(openLoader());
     const postTask = {
       title: taskData.title,
       note: taskData.note,
@@ -63,6 +66,8 @@ const Dashboard = () => {
       const fetchData = await fetchTasksForUser(session?.user.id);
       dispatch(modifyTasks(fetchData));
     }
+
+    dispatch(closedLoader());
   };
 
   const handleOnChange = (e: any) => {
@@ -79,8 +84,14 @@ const Dashboard = () => {
       title: "",
       note: "",
     });
-    setShowTaskForm(false)
-  }
+    setShowTaskForm(false);
+  };
+
+  const handleSignOut = async () => {
+    dispatch(openLoader());
+    await signOut();
+    dispatch(closedLoader());
+  };
 
   return (
     <>
@@ -89,7 +100,7 @@ const Dashboard = () => {
           <p className="flex-grow">Hey, {session?.user?.name?.split(" ")[0]}</p>
           <button
             className="text-sm text-blueGrey-500 font-normal"
-            onClick={() => signOut()}
+            onClick={handleSignOut}
           >
             Sign Out
           </button>
@@ -97,9 +108,11 @@ const Dashboard = () => {
         <div className="text-sm mb-5">
           <p>
             You have{" "}
-            <span className="text-deepPurple-500">{taskList.length} {taskList.length > 1 ? `tasks`: `task`}</span>{" "}
+            <span className="text-deepPurple-500">
+              {taskList.length} {taskList.length > 1 ? `tasks` : `task`}
+            </span>{" "}
             to complete
-          </p>87u9
+          </p>
         </div>
         <div className="text-sm flex">
           <div className="flex-grow">

@@ -15,6 +15,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import TaskForm from "./TaskForm";
+import { closedLoader, openLoader } from "@/utils/reducers/loaderReducer";
 
 interface TaskProps {
   data: {
@@ -38,6 +39,7 @@ const Task = ({ data }: TaskProps) => {
   const dispatch = useDispatch();
 
   const handleChecker = async () => {
+    dispatch(openLoader());
     const updateRequest = await axios.patch(
       `/api/task/${_id}`,
       {
@@ -56,11 +58,14 @@ const Task = ({ data }: TaskProps) => {
       const fetchData = await fetchTasksForUser(session?.user.id);
       dispatch(modifyTasks(fetchData));
     }
+
+    dispatch(closedLoader());
   };
 
   const handleUpdate = async (e: any) => {
     e.preventDefault();
 
+    dispatch(openLoader());
     const updateRequest = await axios.patch(
       `/api/task/${_id}`,
       {
@@ -74,21 +79,24 @@ const Task = ({ data }: TaskProps) => {
         },
       }
     );
-      console.log(updateRequest)
+    console.log(updateRequest);
     if (updateRequest.statusText === "OK") {
       const fetchData = await fetchTasksForUser(session?.user.id);
       dispatch(modifyTasks(fetchData));
       setShowTaskForm(false);
     }
+    dispatch(closedLoader());
   };
 
   const handleDelete = async () => {
+    dispatch(openLoader());
     const deleteRequest = await axios.delete(`/api/task/${_id}`);
 
     if (deleteRequest.statusText === "OK") {
       const fetchData = await fetchTasksForUser(session?.user.id);
       dispatch(modifyTasks([]));
     }
+    dispatch(closedLoader());
   };
 
   const handleOnChange = (e: any) => {
