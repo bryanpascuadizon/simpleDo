@@ -5,21 +5,28 @@ import { UilTrashAlt } from "@iconscout/react-unicons";
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { RootState } from "@/utils/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 
 //COMPONENT
 import Task from "@/components/Tasks/Task";
-import AddTask from "./Tasks/AddTask";
+import TaskForm from "./Tasks/TaskForm";
 
 //ACTIONS
 import { fetchTasksForUser } from "@/lib/TaskActions";
+import { modifyTasks } from "@/utils/reducers/taskReducer";
 
 const Dashboard = () => {
-  const [addTask, setAddTask] = useState(false);
+  const [taskData, setTaskData] = useState({
+    title: "",
+    note: "",
+  });
+  const [showTaskForm, setShowTaskForm] = useState(false);
   const [taskList, setTaskList] = useState<Array<{}>>([]);
   const { data: session }: any = useSession();
   const taskDispatch = useSelector((state: RootState) => state.tasks);
   const { tasks } = taskDispatch;
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -29,6 +36,51 @@ const Dashboard = () => {
 
     fetchTasks();
   }, [tasks]);
+
+  const addTaskSubmit = async (e: any) => {
+    e.preventDefault();
+
+    const postTask = {
+      title: taskData.title,
+      note: taskData.note,
+      userId: session?.user.id,
+      isCompleted: false,
+    };
+
+    const postRequest = await axios.post("/api/task", postTask, {
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+
+    if (postRequest.statusText === "OK") {
+      setTaskData({
+        title: "",
+        note: "",
+      });
+      setShowTaskForm(false);
+
+      const fetchData = await fetchTasksForUser(session?.user.id);
+      dispatch(modifyTasks(fetchData));
+    }
+  };
+
+  const handleOnChange = (e: any) => {
+    const { name, value }: { name: string; value: string } = e.target;
+
+    setTaskData({
+      ...taskData,
+      [name]: value,
+    });
+  };
+
+  const handleCancel = () => {
+    setTaskData({
+      title: "",
+      note: "",
+    });
+    setShowTaskForm(false)
+  }
 
   return (
     <>
@@ -45,15 +97,15 @@ const Dashboard = () => {
         <div className="text-sm mb-5">
           <p>
             You have{" "}
-            <span className="text-deepPurple-500">{taskList.length} tasks</span>{" "}
+            <span className="text-deepPurple-500">{taskList.length} {taskList.length > 1 ? `tasks`: `task`}</span>{" "}
             to complete
-          </p>
+          </p>87u9
         </div>
         <div className="text-sm flex">
           <div className="flex-grow">
             <button
               className="pt-2 pb-2 pl-4 pr-4 text-white bg-deepPurple-900 rounded-full"
-              onClick={() => setAddTask(!addTask)}
+              onClick={() => setShowTaskForm(!showTaskForm)}
             >
               Add a task
             </button>
@@ -64,7 +116,14 @@ const Dashboard = () => {
             </button>
           </div>
         </div>
-        <AddTask show={addTask} setAddTask={setAddTask} />
+        <TaskForm
+          data={taskData}
+          show={showTaskForm}
+          action="Add"
+          handleSubmit={addTaskSubmit}
+          handleOnChange={handleOnChange}
+          handleCancel={handleCancel}
+        />
       </div>
       <div className="dashboard_body pb-10 mt-5">
         {taskList.length > 0 ? (
@@ -81,7 +140,7 @@ const Dashboard = () => {
             />
           ))
         ) : (
-          <p className="text-center text-sm mt-10">You have no task left</p>
+          <p className="text-center text-sm mt-10">You have no tasks left</p>
         )}
       </div>
     </>

@@ -23,6 +23,8 @@ export const PATCH = async (request: Request, { params }: DBTaskProps) => {
     const req = await request.json();
     await connectToDB();
     const userTask = await Task.findById({ _id: params.id });
+    userTask.title = req.title;
+    userTask.note = req.note;
     userTask.isCompleted = req.isCompleted;
     userTask.save();
     return new NextResponse(JSON.stringify(userTask), { status: 200 });
