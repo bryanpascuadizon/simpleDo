@@ -13,7 +13,10 @@ import Task from "@/components/Tasks/Task";
 import TaskForm from "./Tasks/TaskForm";
 
 //REDUCER ACTIONS
-import { modifyTasks } from "@/utils/reducers/taskReducer";
+import {
+  modifyTasks,
+  toResetBulkDeleteTasks,
+} from "@/utils/reducers/taskReducer";
 
 //ACTIONS
 import { fetchTasksForUser } from "@/lib/TaskActions";
@@ -25,6 +28,7 @@ const Dashboard = () => {
     note: "",
   });
   const [showTaskForm, setShowTaskForm] = useState(false);
+  const [toBulkDelete, setToBulkDelete] = useState(false);
   const [taskList, setTaskList] = useState<Array<{}>>([]);
   const { data: session }: any = useSession();
   const taskDispatch = useSelector((state: RootState) => state.tasks);
@@ -34,10 +38,14 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       const data = await fetchTasksForUser(session?.user.id);
-      setTaskList(data);
+      dispatch(modifyTasks(data));
     };
 
     fetchTasks();
+  }, []);
+
+  useEffect(() => {
+    setTaskList(tasks);
   }, [tasks]);
 
   const addTaskSubmit = async (e: any) => {
@@ -93,6 +101,39 @@ const Dashboard = () => {
     dispatch(closedLoader());
   };
 
+  const handleToBulkDelete = () => {
+    setToBulkDelete(!toBulkDelete);
+    dispatch(toResetBulkDeleteTasks());
+  };
+
+  const handleTasksForDeletion = async () => {
+    dispatch(openLoader());
+
+    let isOk: boolean = false;
+
+    const filterTasksForDeletion = tasks.filter(
+      (task: any) => task.isForDelete === true
+    );
+
+    for (let task of filterTasksForDeletion) {
+      const deleteRequest: any = await axios.delete(`/api/task/${task._id}`);
+
+      if (deleteRequest.statusText === "OK") {
+        console.log("Passed");
+        isOk = true;
+      } else {
+        console.log("Failed");
+        isOk = false;
+      }
+    }
+
+    if (isOk) {
+      const fetchData = await fetchTasksForUser(session?.user.id);
+      dispatch(modifyTasks(fetchData));
+    }
+
+    dispatch(closedLoader());
+  };
   return (
     <>
       <div className="dasbhboard_header">
@@ -123,10 +164,20 @@ const Dashboard = () => {
               Add a task
             </button>
           </div>
-          <div className="self-center">
-            <button className="">
+          <div className="self-center flex">
+            <button className="mr-2" onClick={handleToBulkDelete}>
               <UilTrashAlt />
             </button>
+            {toBulkDelete ? (
+              <button
+                className="pt-2 pb-2 pl-4 pr-4 text-white bg-red-600 rounded-full"
+                onClick={handleTasksForDeletion}
+              >
+                Delete tasks
+              </button>
+            ) : (
+              ""
+            )}
           </div>
         </div>
         <TaskForm
@@ -147,8 +198,10 @@ const Dashboard = () => {
                 title: task.title,
                 note: task.note,
                 isCompleted: task.isCompleted,
+                isForDelete: task.isForDelete,
                 dateCreated: task.date_created,
               }}
+              toBulkDelete={toBulkDelete}
               key={task._id}
             />
           ))

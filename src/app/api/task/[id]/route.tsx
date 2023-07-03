@@ -36,7 +36,7 @@ export const PATCH = async (request: Request, { params }: DBTaskProps) => {
 export const DELETE = async (request: Request, { params }: any) => {
   try {
     await connectToDB();
-    const userTask = await Task.findOneAndDelete(params.id);
+    const userTask = await Task.findByIdAndDelete({ _id: params.id });
 
     if (!userTask)
       return new NextResponse("User Task not found", { status: 404 });
