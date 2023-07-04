@@ -45,12 +45,12 @@ const Login = () => {
     };
 
     setUpProviders();
+    dispatch(closedLoader());
   }, []);
 
   const handleLogin = async (providerId: string) => {
     dispatch(openLoader());
-    await signIn(providerId);
-    dispatch(closedLoader());
+    await signIn(providerId, { callbackUrl: "/dashboard" });
   };
   return (
     <div className="h-full relative">

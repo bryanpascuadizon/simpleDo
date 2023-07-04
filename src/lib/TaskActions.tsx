@@ -13,7 +13,7 @@ export const fetchTasksForUser = async (userId: string) => {
     item.isForDelete = false;
   });
 
-  console.log("Fetch task data for user.", getRequest.data);
+  // console.log("Fetch task data for user.", getRequest.data);
 
   return getRequest.data;
 };

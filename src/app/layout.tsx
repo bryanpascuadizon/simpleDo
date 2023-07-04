@@ -18,7 +18,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          {children}
+          <main className="bg-white text-blueGrey-600 m-auto max-w-md p-5 h-screen">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>

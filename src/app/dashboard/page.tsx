@@ -10,7 +10,7 @@ import axios from "axios";
 
 //COMPONENT
 import Task from "@/components/Tasks/Task";
-import TaskForm from "./Tasks/TaskForm";
+import TaskForm from "@/components/Tasks/TaskForm";
 
 //REDUCER ACTIONS
 import {
@@ -41,12 +41,16 @@ const Dashboard = () => {
       dispatch(modifyTasks(data));
     };
 
-    fetchTasks();
-  }, []);
+    if (session) fetchTasks();
+  }, [session]);
 
   useEffect(() => {
     setTaskList(tasks);
   }, [tasks]);
+
+  useEffect(() => {
+    dispatch(closedLoader());
+  });
 
   const addTaskSubmit = async (e: any) => {
     e.preventDefault();
@@ -97,8 +101,7 @@ const Dashboard = () => {
 
   const handleSignOut = async () => {
     dispatch(openLoader());
-    await signOut();
-    dispatch(closedLoader());
+    await signOut({ callbackUrl: "/" });
   };
 
   const handleToBulkDelete = () => {
@@ -119,10 +122,8 @@ const Dashboard = () => {
       const deleteRequest: any = await axios.delete(`/api/task/${task._id}`);
 
       if (deleteRequest.statusText === "OK") {
-        console.log("Passed");
         isOk = true;
       } else {
-        console.log("Failed");
         isOk = false;
       }
     }
@@ -165,9 +166,6 @@ const Dashboard = () => {
             </button>
           </div>
           <div className="self-center flex">
-            <button className="mr-2" onClick={handleToBulkDelete}>
-              <UilTrashAlt />
-            </button>
             {toBulkDelete ? (
               <button
                 className="pt-2 pb-2 pl-4 pr-4 text-white bg-red-600 rounded-full"
@@ -178,6 +176,9 @@ const Dashboard = () => {
             ) : (
               ""
             )}
+            <button className="ml-2" onClick={handleToBulkDelete}>
+              <UilTrashAlt />
+            </button>
           </div>
         </div>
         <TaskForm
