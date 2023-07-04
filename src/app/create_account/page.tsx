@@ -33,9 +33,9 @@ const CreateAccount = () => {
       account,
     });
 
-    console.log("CREATE REQUEST: ", createRequest)
+    console.log("CREATE REQUEST: ", createRequest);
 
-    if (createRequest.statusText === "OK") {
+    if (createRequest.status === 200) {
       router.push("/");
     }
   };
