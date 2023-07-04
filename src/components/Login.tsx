@@ -14,6 +14,8 @@ import moment from "moment";
 
 //REDUCER ACTIONS
 import { closedLoader, openLoader } from "@/utils/reducers/loaderReducer";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
   const [loginCredentials, setLoginCredentials] = useState({
@@ -26,10 +28,30 @@ const Login = () => {
   > | null>(null);
   const { username, password } = loginCredentials;
   const dispatch = useDispatch();
+  const router = useRouter();
 
-  const handleLoginSubmit = (e: any) => {
+  const handleLogin = async (e: any) => {
     e.preventDefault();
+
+    dispatch(openLoader());
+
+    try {
+      const loginRequest = await axios.post("/api/login/", {
+        loginCredentials,
+      });
+
+      if (loginRequest.statusText === "OK") {
+        router.push("/dashboard");
+      }
+    } catch (error: any) {
+      console.log(error.response.status);
+      if (error.response.status === 401) {
+        dispatch(closedLoader());
+        router.push("/");
+      }
+    }
   };
+
   const handleOnChange = (e: any) => {
     const { name, value }: { name: string; value: string } = e.target;
     setLoginCredentials({
@@ -48,13 +70,14 @@ const Login = () => {
     dispatch(closedLoader());
   }, []);
 
-  const handleLogin = async (providerId: string) => {
+  const handleProviderLogin = async (providerId: string) => {
     dispatch(openLoader());
     await signIn(providerId, { callbackUrl: "/dashboard" });
   };
+
   return (
     <div className="h-full relative">
-      <div className="login_header text-center mb-10">
+      <div className="login_header text-center mb-7">
         <p className="font-bold text-5xl font-sans text-blueGrey-900 mb-3">
           SimpleDo
         </p>
@@ -62,7 +85,7 @@ const Login = () => {
       </div>
       <div className="login_body text-center">
         <p className="text-md mb-3">Login</p>
-        <form onSubmit={handleLoginSubmit} className="flex flex-col">
+        <form onSubmit={handleLogin} className="flex flex-col">
           <input
             type="text"
             name="username"
@@ -79,9 +102,12 @@ const Login = () => {
             className="border border-blueGrey-100 rounded-md mt-3 text-xs text-center p-3 w-[60%] place-self-center"
             onChange={handleOnChange}
           />
-          <Link href="/forgotpassword" className="text-xs mt-5 font-light">
-            Forgot Password?
-          </Link>
+          <p className="text-xs mt-5 font-light">
+            Create an account
+            <span className="text-deepPurple-600 font-semibold">
+              <Link href="/create_account">{` `}here</Link>
+            </span>
+          </p>
           <button
             type="submit"
             className=" bg-deepPurple-900 rounded-full mt-5 text-xs text-center p-3 w-[60%] place-self-center text-white"
@@ -96,7 +122,7 @@ const Login = () => {
               <button
                 type="button"
                 key={provider.name}
-                onClick={() => handleLogin(provider.id)}
+                onClick={() => handleProviderLogin(provider.id)}
                 className="text-xs rounded-full text-center p-3 border border-gray-400 w-[60%] relative"
               >
                 {provider.name === "Google" ? (
@@ -117,7 +143,7 @@ const Login = () => {
             </div>
           ))}
       </div>
-      <div className="login_footer text-center absolute bottom-5 left-[25%] right-[25%]">
+      <div className="login_footer text-center absolute bottom-14 left-[25%] right-[25%]">
         <p className="text-xs">{`© ${moment(new Date()).format(
           "YYYY"
         )} Bryan Dizon`}</p>
