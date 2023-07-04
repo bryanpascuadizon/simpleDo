@@ -2,10 +2,10 @@ import User from "@/model/user";
 import { connectToDB } from "@/utils/database";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { useRouter } from "next/navigation";
-export const POST = async (req: NextRequest) => {
-  const data = await req.json();
+import { createCookie } from "@/lib/auth";
 
+export const POST = async (req: NextRequest, res: NextResponse) => {
+  const data = await req.json();
   const { username, password } = data.loginCredentials;
   try {
     await connectToDB();
@@ -21,9 +21,16 @@ export const POST = async (req: NextRequest) => {
       password,
       checkExisitingUser.password
     );
+
     if (checkPassword && checkExisitingUser.username === username) {
-      return new NextResponse(JSON.stringify(checkExisitingUser), {
+      const serializedCookie: string = await createCookie();
+
+      return new NextResponse("Login Successfully", {
         status: 200,
+        headers: {
+          "Set-Cookie": serializedCookie,
+          "Content-Type": "text/plain",
+        },
       });
     } else {
       return new NextResponse("Check Username or Password.", {

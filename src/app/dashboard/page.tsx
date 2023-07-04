@@ -56,36 +56,32 @@ const Dashboard = () => {
 
   const addTaskSubmit = async (e: any) => {
     e.preventDefault();
-    if (session) {
-      dispatch(openLoader());
-      const postTask = {
-        title: taskData.title,
-        note: taskData.note,
-        userId: session?.user.id,
-        isCompleted: false,
-      };
+    dispatch(openLoader());
+    const postTask = {
+      title: taskData.title,
+      note: taskData.note,
+      userId: session?.user.id,
+      isCompleted: false,
+    };
 
-      const postRequest = await axios.post("/api/task", postTask, {
-        headers: {
-          "Content-type": "application/json",
-        },
+    const postRequest = await axios.post("/api/task", postTask, {
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+
+    if (postRequest.statusText === "OK") {
+      setTaskData({
+        title: "",
+        note: "",
       });
+      setShowTaskForm(false);
 
-      if (postRequest.statusText === "OK") {
-        setTaskData({
-          title: "",
-          note: "",
-        });
-        setShowTaskForm(false);
-
-        const fetchData = await fetchTasksForUser(session?.user.id);
-        dispatch(modifyTasks(fetchData));
-      }
-
-      dispatch(closedLoader());
-    } else {
-      router.push("/");
+      const fetchData = await fetchTasksForUser(session?.user.id);
+      dispatch(modifyTasks(fetchData));
     }
+
+    dispatch(closedLoader());
   };
 
   const handleOnChange = (e: any) => {
@@ -107,7 +103,16 @@ const Dashboard = () => {
 
   const handleSignOut = async () => {
     dispatch(openLoader());
-    await signOut({ callbackUrl: "/" });
+
+    try {
+      const logoutRequest = await axios.post("/api/logout/");
+
+      if (logoutRequest.statusText === "OK") {
+        await signOut({ callbackUrl: "/" });
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleToBulkDelete = () => {
@@ -116,34 +121,30 @@ const Dashboard = () => {
   };
 
   const handleTasksForDeletion = async () => {
-    if (session) {
-      dispatch(openLoader());
+    dispatch(openLoader());
 
-      let isOk: boolean = false;
+    let isOk: boolean = false;
 
-      const filterTasksForDeletion = tasks.filter(
-        (task: any) => task.isForDelete === true
-      );
+    const filterTasksForDeletion = tasks.filter(
+      (task: any) => task.isForDelete === true
+    );
 
-      for (let task of filterTasksForDeletion) {
-        const deleteRequest: any = await axios.delete(`/api/task/${task._id}`);
+    for (let task of filterTasksForDeletion) {
+      const deleteRequest: any = await axios.delete(`/api/task/${task._id}`);
 
-        if (deleteRequest.statusText === "OK") {
-          isOk = true;
-        } else {
-          isOk = false;
-        }
+      if (deleteRequest.statusText === "OK") {
+        isOk = true;
+      } else {
+        isOk = false;
       }
-
-      if (isOk) {
-        const fetchData = await fetchTasksForUser(session?.user.id);
-        dispatch(modifyTasks(fetchData));
-      }
-
-      dispatch(closedLoader());
-    } else {
-      router.push("/");
     }
+
+    if (isOk) {
+      const fetchData = await fetchTasksForUser(session?.user.id);
+      dispatch(modifyTasks(fetchData));
+    }
+
+    dispatch(closedLoader());
   };
   return (
     <>

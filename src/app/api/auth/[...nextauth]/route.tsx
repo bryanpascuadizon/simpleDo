@@ -1,7 +1,12 @@
+import { createCookie, getJWTSecretKey } from "@/lib/auth";
 import User from "@/model/user";
 import { connectToDB } from "@/utils/database";
+import { serialize } from "cookie";
+import { SignJWT } from "jose";
+import { nanoid } from "nanoid";
 import NextAuth from "next-auth";
 import GoolgeProvider from "next-auth/providers/google";
+import { parse } from "cookie";
 
 const handler = NextAuth({
   providers: [
@@ -25,7 +30,7 @@ const handler = NextAuth({
         });
         //if not, create a new user
         if (!isUserExists) {
-          await new User({
+          await User.create({
             email: user?.email,
             username: user?.name?.replace(" ", "").toLowerCase(),
             name: user?.name,
@@ -36,6 +41,12 @@ const handler = NextAuth({
         console.error("Error checking if user exists: ", error.message);
         return false;
       }
+    },
+    async jwt({ token }) {
+      const serializedCookie: string = await createCookie();
+
+      token.cookie = serializedCookie;
+      return token;
     },
   },
 });

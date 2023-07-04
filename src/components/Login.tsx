@@ -72,6 +72,7 @@ const Login = () => {
 
   const handleProviderLogin = async (providerId: string) => {
     dispatch(openLoader());
+   
     await signIn(providerId, { callbackUrl: "/dashboard" });
   };
 
