@@ -45,7 +45,6 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
   const taskDate = moment(dateCreated).format("MMM-DD-YYYY");
   const { data: session }: any = useSession();
   const dispatch = useDispatch();
-  const router = useRouter();
 
   const handleChecker = async () => {
     dispatch(openLoader());
@@ -63,7 +62,7 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
       }
     );
 
-    if (updateRequest.statusText === "OK") {
+    if (updateRequest.status === 200) {
       const fetchData = await fetchTasksForUser(session?.user.id);
       dispatch(modifyTasks(fetchData));
     }
@@ -92,7 +91,7 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
       }
     );
 
-    if (updateRequest.statusText === "OK") {
+    if (updateRequest.status === 200) {
       const fetchData = await fetchTasksForUser(session?.user.id);
       console.log(fetchData);
       dispatch(modifyTasks(fetchData));
@@ -105,7 +104,7 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
     dispatch(openLoader());
     const deleteRequest = await axios.delete(`/api/task/${_id}`);
 
-    if (deleteRequest.statusText === "OK") {
+    if (deleteRequest.status === 200) {
       const fetchData = await fetchTasksForUser(session?.user.id);
       dispatch(modifyTasks(fetchData));
     }

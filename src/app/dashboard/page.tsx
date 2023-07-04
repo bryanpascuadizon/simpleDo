@@ -70,7 +70,7 @@ const Dashboard = () => {
       },
     });
 
-    if (postRequest.statusText === "OK") {
+    if (postRequest.status === 200) {
       setTaskData({
         title: "",
         note: "",
@@ -107,7 +107,7 @@ const Dashboard = () => {
     try {
       const logoutRequest = await axios.post("/api/logout/");
 
-      if (logoutRequest.statusText === "OK") {
+      if (logoutRequest.status === 200) {
         await signOut({ callbackUrl: "/" });
       }
     } catch (error) {
@@ -132,7 +132,7 @@ const Dashboard = () => {
     for (let task of filterTasksForDeletion) {
       const deleteRequest: any = await axios.delete(`/api/task/${task._id}`);
 
-      if (deleteRequest.statusText === "OK") {
+      if (deleteRequest.status === 200) {
         isOk = true;
       } else {
         isOk = false;
