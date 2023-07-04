@@ -48,11 +48,15 @@ export const createCookie = async () => {
 };
 
 export const getUserId = () => {
-  const userId = localStorage.getItem("user-id");
-  return userId;
+  if (typeof window !== "undefined") {
+    const userId = localStorage.getItem("user-id");
+    return userId;
+  }
 };
 
 export const getUserName = () => {
-  const userName = localStorage.getItem("user-name");
-  return userName
-}
+  if (typeof window !== "undefined") {
+    const userName = localStorage.getItem("user-name");
+    return userName;
+  }
+};
