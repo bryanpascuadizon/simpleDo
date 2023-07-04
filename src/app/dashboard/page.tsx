@@ -78,6 +78,7 @@ const Dashboard = () => {
       setShowTaskForm(false);
 
       const fetchData = await fetchTasksForUser(session?.user.id);
+      console.log("FETCH DATA: ", fetchData, session);
       dispatch(modifyTasks(fetchData));
     }
 

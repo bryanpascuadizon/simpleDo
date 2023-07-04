@@ -44,7 +44,6 @@ const Login = () => {
         router.push("/dashboard");
       }
     } catch (error: any) {
-      console.log(error.response.status);
       if (error.response.status === 401) {
         dispatch(closedLoader());
         router.push("/");
@@ -72,7 +71,7 @@ const Login = () => {
 
   const handleProviderLogin = async (providerId: string) => {
     dispatch(openLoader());
-   
+
     await signIn(providerId, { callbackUrl: "/dashboard" });
   };
 
