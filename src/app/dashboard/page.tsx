@@ -23,6 +23,7 @@ import {
 import { fetchTasksForUser } from "@/lib/TaskActions";
 import { closedLoader, openLoader } from "@/utils/reducers/loaderReducer";
 import { getUserId, getUserName } from "@/lib/auth";
+import Loader from "@/utils/loader";
 
 const Dashboard = () => {
   const [taskData, setTaskData] = useState({
@@ -44,11 +45,9 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       const data = await fetchTasksForUser(userId);
-      console.log("User Id", userId, data)
+      console.log("User Id", userId, data);
       dispatch(modifyTasks(data));
     };
-
-   
 
     if (userId) fetchTasks();
   }, [userId]);
@@ -158,6 +157,7 @@ const Dashboard = () => {
   };
   return (
     <>
+      <Loader />
       <div className="dasbhboard_header">
         <div className="font-bold text-5xl font-sans text-blueGrey-900 mb-5 flex">
           <p className="flex-grow">Hey, {userName}</p>

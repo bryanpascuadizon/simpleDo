@@ -4,11 +4,6 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { useSelector } from "react-redux";
 import { RootState } from "./store";
 
-interface PaletteColor {
-  main: string;
-  darker?: string;
-}
-
 const theme = createTheme({
   palette: {
     primary: {
