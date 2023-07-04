@@ -40,7 +40,7 @@ const Login = () => {
         loginCredentials,
       });
 
-      if (loginRequest.statusText === "OK") {
+      if (loginRequest.status === 200) {
         router.push("/dashboard");
       }
     } catch (error: any) {
