@@ -7,6 +7,7 @@ import { signOut, useSession } from "next-auth/react";
 import { RootState } from "@/utils/store";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 //COMPONENT
 import Task from "@/components/Tasks/Task";
@@ -34,6 +35,7 @@ const Dashboard = () => {
   const taskDispatch = useSelector((state: RootState) => state.tasks);
   const { tasks } = taskDispatch;
   const dispatch = useDispatch();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -54,32 +56,36 @@ const Dashboard = () => {
 
   const addTaskSubmit = async (e: any) => {
     e.preventDefault();
-    dispatch(openLoader());
-    const postTask = {
-      title: taskData.title,
-      note: taskData.note,
-      userId: session?.user.id,
-      isCompleted: false,
-    };
+    if (session) {
+      dispatch(openLoader());
+      const postTask = {
+        title: taskData.title,
+        note: taskData.note,
+        userId: session?.user.id,
+        isCompleted: false,
+      };
 
-    const postRequest = await axios.post("/api/task", postTask, {
-      headers: {
-        "Content-type": "application/json",
-      },
-    });
-
-    if (postRequest.statusText === "OK") {
-      setTaskData({
-        title: "",
-        note: "",
+      const postRequest = await axios.post("/api/task", postTask, {
+        headers: {
+          "Content-type": "application/json",
+        },
       });
-      setShowTaskForm(false);
 
-      const fetchData = await fetchTasksForUser(session?.user.id);
-      dispatch(modifyTasks(fetchData));
+      if (postRequest.statusText === "OK") {
+        setTaskData({
+          title: "",
+          note: "",
+        });
+        setShowTaskForm(false);
+
+        const fetchData = await fetchTasksForUser(session?.user.id);
+        dispatch(modifyTasks(fetchData));
+      }
+
+      dispatch(closedLoader());
+    } else {
+      router.push("/");
     }
-
-    dispatch(closedLoader());
   };
 
   const handleOnChange = (e: any) => {
@@ -110,30 +116,34 @@ const Dashboard = () => {
   };
 
   const handleTasksForDeletion = async () => {
-    dispatch(openLoader());
+    if (session) {
+      dispatch(openLoader());
 
-    let isOk: boolean = false;
+      let isOk: boolean = false;
 
-    const filterTasksForDeletion = tasks.filter(
-      (task: any) => task.isForDelete === true
-    );
+      const filterTasksForDeletion = tasks.filter(
+        (task: any) => task.isForDelete === true
+      );
 
-    for (let task of filterTasksForDeletion) {
-      const deleteRequest: any = await axios.delete(`/api/task/${task._id}`);
+      for (let task of filterTasksForDeletion) {
+        const deleteRequest: any = await axios.delete(`/api/task/${task._id}`);
 
-      if (deleteRequest.statusText === "OK") {
-        isOk = true;
-      } else {
-        isOk = false;
+        if (deleteRequest.statusText === "OK") {
+          isOk = true;
+        } else {
+          isOk = false;
+        }
       }
-    }
 
-    if (isOk) {
-      const fetchData = await fetchTasksForUser(session?.user.id);
-      dispatch(modifyTasks(fetchData));
-    }
+      if (isOk) {
+        const fetchData = await fetchTasksForUser(session?.user.id);
+        dispatch(modifyTasks(fetchData));
+      }
 
-    dispatch(closedLoader());
+      dispatch(closedLoader());
+    } else {
+      router.push("/");
+    }
   };
   return (
     <>

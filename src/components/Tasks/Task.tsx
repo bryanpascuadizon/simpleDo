@@ -14,6 +14,9 @@ import moment from "moment";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
+
+//COMPONENTS
 import TaskForm from "./TaskForm";
 
 //REDUCER ACTIONS
@@ -42,29 +45,34 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
   const taskDate = moment(dateCreated).format("MMM-DD-YYYY");
   const { data: session }: any = useSession();
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const handleChecker = async () => {
-    dispatch(openLoader());
-    const updateRequest = await axios.patch(
-      `/api/task/${_id}`,
-      {
-        title,
-        note,
-        isCompleted: !isCompleted,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
+    if (session) {
+      dispatch(openLoader());
+      const updateRequest = await axios.patch(
+        `/api/task/${_id}`,
+        {
+          title,
+          note,
+          isCompleted: !isCompleted,
         },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (updateRequest.statusText === "OK") {
+        const fetchData = await fetchTasksForUser(session?.user.id);
+        dispatch(modifyTasks(fetchData));
       }
-    );
 
-    if (updateRequest.statusText === "OK") {
-      const fetchData = await fetchTasksForUser(session?.user.id);
-      dispatch(modifyTasks(fetchData));
+      dispatch(closedLoader());
+    } else {
+      router.push("/");
     }
-
-    dispatch(closedLoader());
   };
 
   const handleForDeletion = async (id: string) => {
@@ -73,40 +81,47 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
 
   const handleUpdate = async (e: any) => {
     e.preventDefault();
-
-    dispatch(openLoader());
-    const updateRequest = await axios.patch(
-      `/api/task/${_id}`,
-      {
-        title: taskData.title,
-        note: taskData.note,
-        isCompleted: isCompleted,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
+    if (session) {
+      dispatch(openLoader());
+      const updateRequest = await axios.patch(
+        `/api/task/${_id}`,
+        {
+          title: taskData.title,
+          note: taskData.note,
+          isCompleted: isCompleted,
         },
-      }
-    );
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    if (updateRequest.statusText === "OK") {
-      const fetchData = await fetchTasksForUser(session?.user.id);
-      console.log(fetchData);
-      dispatch(modifyTasks(fetchData));
-      setShowTaskForm(false);
+      if (updateRequest.statusText === "OK") {
+        const fetchData = await fetchTasksForUser(session?.user.id);
+        console.log(fetchData);
+        dispatch(modifyTasks(fetchData));
+        setShowTaskForm(false);
+      }
+      dispatch(closedLoader());
+    } else {
+      router.push("/");
     }
-    dispatch(closedLoader());
   };
 
   const handleDelete = async () => {
-    dispatch(openLoader());
-    const deleteRequest = await axios.delete(`/api/task/${_id}`);
+    if (session) {
+      dispatch(openLoader());
+      const deleteRequest = await axios.delete(`/api/task/${_id}`);
 
-    if (deleteRequest.statusText === "OK") {
-      const fetchData = await fetchTasksForUser(session?.user.id);
-      dispatch(modifyTasks(fetchData));
+      if (deleteRequest.statusText === "OK") {
+        const fetchData = await fetchTasksForUser(session?.user.id);
+        dispatch(modifyTasks(fetchData));
+      }
+      dispatch(closedLoader());
+    } else {
+      router.push("/");
     }
-    dispatch(closedLoader());
   };
 
   const handleOnChange = (e: any) => {
