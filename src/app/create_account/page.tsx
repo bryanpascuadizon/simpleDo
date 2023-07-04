@@ -33,6 +33,8 @@ const CreateAccount = () => {
       account,
     });
 
+    console.log("CREATE REQUEST: ", createRequest)
+
     if (createRequest.statusText === "OK") {
       router.push("/");
     }
