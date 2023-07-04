@@ -1,12 +1,8 @@
-import { createCookie, getJWTSecretKey } from "@/lib/auth";
+import { createCookie } from "@/lib/auth";
 import User from "@/model/user";
 import { connectToDB } from "@/utils/database";
-import { serialize } from "cookie";
-import { SignJWT } from "jose";
-import { nanoid } from "nanoid";
 import NextAuth from "next-auth";
 import GoolgeProvider from "next-auth/providers/google";
-import { parse } from "cookie";
 
 const handler = NextAuth({
   providers: [

@@ -41,6 +41,8 @@ const Login = () => {
       });
 
       if (loginRequest.status === 200) {
+        localStorage.setItem("user-id", loginRequest.data._id);
+        localStorage.setItem("user-name", loginRequest.data.name);
         router.push("/dashboard");
       }
     } catch (error: any) {

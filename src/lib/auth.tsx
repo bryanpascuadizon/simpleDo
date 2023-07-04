@@ -46,3 +46,13 @@ export const createCookie = async () => {
 
   return serializedCookie;
 };
+
+export const getUserId = () => {
+  const userId = localStorage.getItem("user-id");
+  return userId;
+};
+
+export const getUserName = () => {
+  const userName = localStorage.getItem("user-name");
+  return userName
+}

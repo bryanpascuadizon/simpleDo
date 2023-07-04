@@ -22,6 +22,7 @@ import TaskForm from "./TaskForm";
 //REDUCER ACTIONS
 import { toSetDeleteTask } from "@/utils/reducers/taskReducer";
 import { closedLoader, openLoader } from "@/utils/reducers/loaderReducer";
+import { getUserId, getUserName } from "@/lib/auth";
 
 interface TaskProps {
   data: {
@@ -45,6 +46,10 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
   const taskDate = moment(dateCreated).format("MMM-DD-YYYY");
   const { data: session }: any = useSession();
   const dispatch = useDispatch();
+  const userId = session ? session?.user.id : getUserId();
+  const userName = session
+    ? session?.user?.name?.split(" ")[0]
+    : getUserName()?.split(" ")[0];
 
   const handleChecker = async () => {
     dispatch(openLoader());
@@ -63,7 +68,7 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
     );
 
     if (updateRequest.status === 200) {
-      const fetchData = await fetchTasksForUser(session?.user.id);
+      const fetchData = await fetchTasksForUser(userId);
       dispatch(modifyTasks(fetchData));
     }
 
@@ -92,7 +97,7 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
     );
 
     if (updateRequest.status === 200) {
-      const fetchData = await fetchTasksForUser(session?.user.id);
+      const fetchData = await fetchTasksForUser(userId);
       console.log(fetchData);
       dispatch(modifyTasks(fetchData));
       setShowTaskForm(false);
@@ -105,7 +110,7 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
     const deleteRequest = await axios.delete(`/api/task/${_id}`);
 
     if (deleteRequest.status === 200) {
-      const fetchData = await fetchTasksForUser(session?.user.id);
+      const fetchData = await fetchTasksForUser(userId);
       dispatch(modifyTasks(fetchData));
     }
     dispatch(closedLoader());

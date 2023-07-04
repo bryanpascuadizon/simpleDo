@@ -22,6 +22,7 @@ import {
 //ACTIONS
 import { fetchTasksForUser } from "@/lib/TaskActions";
 import { closedLoader, openLoader } from "@/utils/reducers/loaderReducer";
+import { getUserId, getUserName } from "@/lib/auth";
 
 const Dashboard = () => {
   const [taskData, setTaskData] = useState({
@@ -35,16 +36,22 @@ const Dashboard = () => {
   const taskDispatch = useSelector((state: RootState) => state.tasks);
   const { tasks } = taskDispatch;
   const dispatch = useDispatch();
-  const router = useRouter();
+  const userId = session ? session?.user.id : getUserId();
+  const userName = session
+    ? session?.user?.name?.split(" ")[0]
+    : getUserName()?.split(" ")[0];
 
   useEffect(() => {
     const fetchTasks = async () => {
-      const data = await fetchTasksForUser(session?.user.id);
+      const data = await fetchTasksForUser(userId);
+      console.log("User Id", userId, data)
       dispatch(modifyTasks(data));
     };
 
-    if (session) fetchTasks();
-  }, [session]);
+   
+
+    if (userId) fetchTasks();
+  }, [userId]);
 
   useEffect(() => {
     setTaskList(tasks);
@@ -60,7 +67,7 @@ const Dashboard = () => {
     const postTask = {
       title: taskData.title,
       note: taskData.note,
-      userId: session?.user.id,
+      userId: userId,
       isCompleted: false,
     };
 
@@ -77,8 +84,8 @@ const Dashboard = () => {
       });
       setShowTaskForm(false);
 
-      const fetchData = await fetchTasksForUser(session?.user.id);
-      console.log("FETCH DATA: ", fetchData, session);
+      const fetchData = await fetchTasksForUser(userId);
+
       dispatch(modifyTasks(fetchData));
     }
 
@@ -109,6 +116,8 @@ const Dashboard = () => {
       const logoutRequest = await axios.post("/api/logout/");
 
       if (logoutRequest.status === 200) {
+        localStorage.removeItem("user-id");
+        localStorage.removeItem("user-name");
         await signOut({ callbackUrl: "/" });
       }
     } catch (error) {
@@ -141,7 +150,7 @@ const Dashboard = () => {
     }
 
     if (isOk) {
-      const fetchData = await fetchTasksForUser(session?.user.id);
+      const fetchData = await fetchTasksForUser(userId);
       dispatch(modifyTasks(fetchData));
     }
 
@@ -151,7 +160,7 @@ const Dashboard = () => {
     <>
       <div className="dasbhboard_header">
         <div className="font-bold text-5xl font-sans text-blueGrey-900 mb-5 flex">
-          <p className="flex-grow">Hey, {session?.user?.name?.split(" ")[0]}</p>
+          <p className="flex-grow">Hey, {userName}</p>
           <button
             className="text-sm text-blueGrey-500 font-normal"
             onClick={handleSignOut}
