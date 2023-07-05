@@ -48,10 +48,12 @@ const Login = () => {
       }
     } catch (error: any) {
       if (error.response.status === 401) {
-        dispatch(openBanner({
-          bannerType: "Error",
-          message: "Please check your username or password."
-        }))
+        dispatch(
+          openBanner({
+            bannerType: "Error",
+            message: "Please check your username or password.",
+          })
+        );
         dispatch(closedLoader());
         router.push("/");
       }
@@ -150,11 +152,11 @@ const Login = () => {
             </div>
           ))}
       </div>
-      <div className="login_footer text-center absolute bottom-14 left-[25%] right-[25%]">
+      {/* <div className="login_footer text-center absolute bottom-14 left-[25%] right-[25%]">
         <p className="text-xs">{`© ${moment(new Date()).format(
           "YYYY"
         )} Bryan Dizon`}</p>
-      </div>
+      </div> */}
     </div>
   );
 };

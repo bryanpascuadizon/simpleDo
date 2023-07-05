@@ -199,7 +199,7 @@ const Dashboard = () => {
               ""
             )}
             <button className="ml-2" onClick={handleToBulkDelete}>
-              <UilTrashAlt />
+              <UilTrashAlt className=""/>
             </button>
           </div>
         </div>

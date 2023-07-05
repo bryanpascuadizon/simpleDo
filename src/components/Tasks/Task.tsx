@@ -165,7 +165,7 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
             ""
           )}
           <div className="task shadow p-5 rounded-lg flex flex-grow">
-            <div className="flex-grow">
+            <div className="flex-grow pr-4">
               <p className="title text-sm font-semibold mb-2">{title}</p>
               <p className="note text-xs whitespace-pre-line">{note}</p>
               <p className="mt-5 text-[10px] text-blueGrey-500">{taskDate}</p>
