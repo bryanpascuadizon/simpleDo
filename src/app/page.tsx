@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <>
       <Loader />
-      <section className="h-screen relative">
+      <section className="relative">
         <Alerts />
         <Login />
       </section>

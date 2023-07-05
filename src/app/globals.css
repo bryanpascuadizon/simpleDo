@@ -20,7 +20,7 @@
   width: 100%;
   top: 0px;
   left: 0px;
-  position: absolute;
+  position: fixed;
 }
 
 .alert_banner_success {

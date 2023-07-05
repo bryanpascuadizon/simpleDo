@@ -129,11 +129,11 @@ const CreateAccount = () => {
           </form>
           {/*  Other Forms of Login */}
         </div>
-        <div className="login_footer text-center absolute bottom-4 left-[25%] right-[25%]">
+        {/* <div className="login_footer text-center absolute bottom-4 left-[25%] right-[25%]">
           <p className="text-xs">{`© ${moment(new Date()).format(
             "YYYY"
           )} Bryan Dizon`}</p>
-        </div>
+        </div> */}
       </div>
     </>
   );
