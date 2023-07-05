@@ -11,6 +11,12 @@ export const POST = async (req: NextRequest) => {
   try {
     await connectToDB();
 
+    const checkExisitngUser = await User.findOne({ username });
+
+    if (checkExisitngUser) {
+      return new NextResponse("Username is already exisiting", { status: 409 });
+    }
+
     const saltRounds: number = 10;
     const salt = bcrypt.genSaltSync(saltRounds);
     const hash = bcrypt.hashSync(password, salt);

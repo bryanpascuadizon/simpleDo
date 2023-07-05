@@ -2,7 +2,7 @@ import { LinearProgress } from "@mui/material";
 
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { useSelector } from "react-redux";
-import { RootState } from "./store";
+import { RootState } from "@/utils/store";
 
 const theme = createTheme({
   palette: {

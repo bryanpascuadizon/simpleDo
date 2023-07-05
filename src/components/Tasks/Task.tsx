@@ -98,7 +98,6 @@ const Task = ({ data, toBulkDelete }: TaskProps) => {
 
     if (updateRequest.status === 200) {
       const fetchData = await fetchTasksForUser(userId);
-      console.log(fetchData);
       dispatch(modifyTasks(fetchData));
       setShowTaskForm(false);
     }

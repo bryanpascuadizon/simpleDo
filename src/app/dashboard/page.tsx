@@ -10,6 +10,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 //COMPONENT
+import Loader from "@/components/Loader";
 import Task from "@/components/Tasks/Task";
 import TaskForm from "@/components/Tasks/TaskForm";
 
@@ -18,12 +19,12 @@ import {
   modifyTasks,
   toResetBulkDeleteTasks,
 } from "@/utils/reducers/taskReducer";
+import { closeBanner } from "@/utils/reducers/errorReducer";
 
 //ACTIONS
 import { fetchTasksForUser } from "@/lib/TaskActions";
 import { closedLoader, openLoader } from "@/utils/reducers/loaderReducer";
 import { getUserId, getUserName } from "@/lib/auth";
-import Loader from "@/utils/loader";
 
 const Dashboard = () => {
   const [taskData, setTaskData] = useState({
@@ -45,7 +46,6 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       const data = await fetchTasksForUser(userId);
-      console.log("User Id", userId, data);
       dispatch(modifyTasks(data));
     };
 
@@ -57,8 +57,9 @@ const Dashboard = () => {
   }, [tasks]);
 
   useEffect(() => {
+    dispatch(closeBanner());
     dispatch(closedLoader());
-  });
+  }, []);
 
   const addTaskSubmit = async (e: any) => {
     e.preventDefault();

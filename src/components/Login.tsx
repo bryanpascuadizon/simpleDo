@@ -16,6 +16,7 @@ import moment from "moment";
 import { closedLoader, openLoader } from "@/utils/reducers/loaderReducer";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { openBanner } from "@/utils/reducers/errorReducer";
 
 const Login = () => {
   const [loginCredentials, setLoginCredentials] = useState({
@@ -47,6 +48,10 @@ const Login = () => {
       }
     } catch (error: any) {
       if (error.response.status === 401) {
+        dispatch(openBanner({
+          bannerType: "Error",
+          message: "Please check your username or password."
+        }))
         dispatch(closedLoader());
         router.push("/");
       }

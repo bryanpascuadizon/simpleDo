@@ -22,3 +22,20 @@
   left: 0px;
   position: absolute;
 }
+
+.alert_banner_success {
+  @apply bg-teal-100 border-t-4 border-green-500 rounded-b text-green-900 px-4 py-3 shadow-md absolute z-10 w-full
+}
+
+.alert_banner_error {
+  @apply bg-red-100 border-t-4 border-red-500 rounded-b text-red-900 px-4 py-3 shadow-md absolute z-10 w-full
+}
+
+.alert_banner_info {
+  @apply bg-blue-100 border-t-4 border-blue-500 rounded-b text-blue-900 px-4 py-3 shadow-md absolute z-10 w-full
+}
+
+.alert_banner_warning {
+  @apply bg-orange-100 border-t-4 border-orange-500 rounded-b text-orange-900 px-4 py-3 shadow-md absolute z-10 w-full
+}
+
