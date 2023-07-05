@@ -1,13 +1,19 @@
 "use client";
 
-import Loader from "@/utils/loader";
-import { openLoader } from "@/utils/reducers/loaderReducer";
 import axios from "axios";
 import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+
+//COMPONENTS
+import Loader from "@/components/Loader";
+import Alerts from "@/components/Alerts/Alerts";
+
+//REDUCER ACTIONS
+import { closedLoader, openLoader } from "@/utils/reducers/loaderReducer";
+import { openBanner } from "@/utils/reducers/errorReducer";
 
 const CreateAccount = () => {
   const [account, setAccount] = useState({
@@ -30,12 +36,31 @@ const CreateAccount = () => {
   const handleSubmit = async (event: any) => {
     event.preventDefault();
     dispatch(openLoader());
-    const createRequest = await axios.post("/api/create", {
-      account,
-    });
 
-    if (createRequest.status === 200) {
-      router.push("/");
+    try {
+      const createRequest = await axios.post("/api/create", {
+        account,
+      });
+
+      if (createRequest.status === 200) {
+        dispatch(
+          openBanner({
+            bannerType: "Success",
+            message: "You have successfully created an account.",
+          })
+        );
+        router.push("/");
+      }
+    } catch (error: any) {
+      if (error.response.status == 409) {
+        dispatch(
+          openBanner({
+            bannerType: "Error",
+            message: "Username is already existing.",
+          })
+        );
+        dispatch(closedLoader());
+      }
     }
   };
 
@@ -43,6 +68,7 @@ const CreateAccount = () => {
     <>
       <Loader />
       <div className="h-full relative">
+        <Alerts />
         <div className="login_header text-center mb-7">
           <p className="font-bold text-5xl font-sans text-blueGrey-900 mb-3">
             SimpleDo
